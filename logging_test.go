@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,25 +18,27 @@ func TestLogging(t *testing.T) {
 	logger := NewLogger(logrusLogger)
 
 	logger.Info("hello")
-	logger.WithField("name", "sid").Info("shit")
+	logger.WithField("name", "sid").Info("world")
 
-	msgs := make([]string, 0)
+	wantMsgs := []string{"hello", "world"}
+	gotMsgs := make([]string, 0)
+
 	scanner := bufio.NewScanner(w)
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		var m map[string]interface{}
-		if err := json.Unmarshal(line, &m); err != nil {
+		var m map[string]string
+		if err := json.Unmarshal([]byte(line), &m); err != nil {
 			t.Fatal(err)
 		}
 
 		if msg, found := m["msg"]; found {
-			msgs = append(msgs, msg)
+			gotMsgs = append(gotMsgs, msg)
 		}
 	}
 
-	for _, msg := range msgs {
-		fmt.Println(msg)
+	if diff := cmp.Diff(wantMsgs, gotMsgs); diff != "" {
+		t.Fatal(diff)
 	}
 }
 
