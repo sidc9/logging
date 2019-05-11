@@ -26,10 +26,11 @@ In addition to this, there are 2 more methods available, `WithField` and `WithFi
 
 In fact, all methods under the Logger interface pass the calls directly to the underlying Logrus methods transparently. They don't modify the log entries at all. The only modification that it does carry out is in the logging level. Since it supports only 3 logging levels, the logging level is reset to the closest one if a different one was set. This means that a log level higher than Debug is reset to Debug and a level lower than Error is reset to Error.
 
-**Usage:**
+## Usage
 
-`
+```
 func main(){
+
     // create a new logrus logger
     logrusLogger := logrus.New()
 
@@ -46,5 +47,5 @@ func main(){
 
     logger.WithField("animal", "walrus").Info("found animal")
 }
-`
+```
 
