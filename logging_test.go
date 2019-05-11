@@ -1,7 +1,10 @@
 package logging
 
 import (
+	"bufio"
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -17,6 +20,24 @@ func TestLogging(t *testing.T) {
 	logger.Info("hello")
 	logger.WithField("name", "sid").Info("shit")
 
+	msgs := make([]string, 0)
+	scanner := bufio.NewScanner(w)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		var m map[string]interface{}
+		if err := json.Unmarshal(line, &m); err != nil {
+			t.Fatal(err)
+		}
+
+		if msg, found := m["msg"]; found {
+			msgs = append(msgs, msg)
+		}
+	}
+
+	for _, msg := range msgs {
+		fmt.Println(msg)
+	}
 }
 
 func TestResetLevel(t *testing.T) {
