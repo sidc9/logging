@@ -1,8 +1,6 @@
 package logging
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,27 +9,19 @@ type Logger interface {
 	Info(args ...interface{})
 	Error(args ...interface{})
 
+	Debugf(format string, args ...interface{})
+	Infof(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
+
 	WithField(key string, value interface{}) Logger
 }
 
 type wrappedLogger struct {
 	*logrus.Entry
-	//l *logrus.Logger
-}
-
-// checkLevel corrects the logging level. Only Debug, Info and Error levels are allowed.
-func checkLevel(l *logrus.Logger) {
-	level := l.GetLevel()
-	if level < logrus.ErrorLevel {
-		l.SetLevel(logrus.ErrorLevel)
-	} else if level > logrus.DebugLevel {
-		l.SetLevel(logrus.DebugLevel)
-	}
-	fmt.Println(level, l.GetLevel())
 }
 
 func NewLogger(l *logrus.Logger) Logger {
-	checkLevel(l)
+	resetLevel(l)
 	return &wrappedLogger{Entry: logrus.NewEntry(l)}
 }
 
@@ -45,8 +35,28 @@ func (w *wrappedLogger) Error(args ...interface{}) {
 	w.Entry.Error(args...)
 }
 
+func (w *wrappedLogger) Debugf(format string, args ...interface{}) {
+	w.Entry.Debugf(format, args...)
+}
+func (w *wrappedLogger) Infof(format string, args ...interface{}) {
+	w.Entry.Infof(format, args...)
+}
+func (w *wrappedLogger) Errorf(format string, args ...interface{}) {
+	w.Entry.Errorf(format, args...)
+}
+
 func (w *wrappedLogger) WithField(key string, value interface{}) Logger {
 	return &wrappedLogger{Entry: w.Entry.WithField(key, value)}
+}
+
+// resetLevel corrects the logging level. Only Debug, Info and Error levels are allowed.
+func resetLevel(l *logrus.Logger) {
+	level := l.GetLevel()
+	if level < logrus.ErrorLevel {
+		l.SetLevel(logrus.ErrorLevel)
+	} else if level > logrus.DebugLevel {
+		l.SetLevel(logrus.DebugLevel)
+	}
 }
 
 //func UseRotation(l Logger, filename string) Logger {
