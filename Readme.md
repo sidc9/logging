@@ -6,7 +6,7 @@ Work in progress. Not ready for use.
 
 # Logging
 
-A simple wrapper around the [logrus library](https://github.com/sirupsen/logrus). This library defines a Logger interface which simplifies the logging framework.
+A simple wrapper around the [logrus library](https://github.com/sirupsen/logrus) with a Logger interface which simplifies the logging framework. This is NOT a logging library! This is just a thin wrapper around the logrus logging library.
 
 ## Motivation
 
