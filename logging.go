@@ -14,6 +14,7 @@ type Logger interface {
 	Errorf(format string, args ...interface{})
 
 	WithField(key string, value interface{}) Logger
+	WithFields(logrus.Fields) Logger
 }
 
 type wrappedLogger struct {
@@ -47,6 +48,9 @@ func (w *wrappedLogger) Errorf(format string, args ...interface{}) {
 
 func (w *wrappedLogger) WithField(key string, value interface{}) Logger {
 	return &wrappedLogger{Entry: w.Entry.WithField(key, value)}
+}
+func (w *wrappedLogger) WithFields(fields logrus.Fields) Logger {
+	return &wrappedLogger{Entry: w.Entry.WithFields(fields)}
 }
 
 // resetLevel corrects the logging level. Only Debug, Info and Error levels are allowed.
