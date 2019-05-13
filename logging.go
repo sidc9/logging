@@ -62,13 +62,3 @@ func resetLevel(l *logrus.Logger) {
 		l.SetLevel(logrus.DebugLevel)
 	}
 }
-
-//func UseRotation(l Logger, filename string) Logger {
-//    wl := l.(*wrappedLogger)
-//    wl.l.SetOutput(&lumberjack.Logger{
-//        Filename: filename,
-//        MaxSize:  20,
-//    })
-//    wl.Entry = logrus.NewEntry(wl.l)
-//    return wl
-//}
