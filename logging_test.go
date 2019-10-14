@@ -1,66 +1,30 @@
-package logging
+package logger
 
 import (
-	"bufio"
 	"bytes"
-	"encoding/json"
+	"fmt"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
-	"github.com/sirupsen/logrus"
 )
 
-func TestLogging(t *testing.T) {
-	w := &bytes.Buffer{}
-	logrusLogger := logrus.New()
-	logrusLogger.SetOutput(w)
-	logrusLogger.SetFormatter(&logrus.JSONFormatter{})
-	logger := NewLogger(logrusLogger)
+func TestDefaultLogger(t *testing.T) {
+	log := NewDefaultLogger()
+	log.SetLevel(Debug)
 
-	logger.Info("hello")
-	logger.WithField("name", "sid").Info("world")
+	log.Debug("d")
+	log.Info("i")
+	log.Error("e")
 
-	wantMsgs := []string{"hello", "world"}
-	gotMsgs := make([]string, 0)
-
-	scanner := bufio.NewScanner(w)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		var m map[string]string
-		if err := json.Unmarshal([]byte(line), &m); err != nil {
-			t.Fatal(err)
-		}
-
-		if msg, found := m["msg"]; found {
-			gotMsgs = append(gotMsgs, msg)
-		}
-	}
-
-	if diff := cmp.Diff(wantMsgs, gotMsgs); diff != "" {
-		t.Fatal(diff)
-	}
+	log.WithFields(map[string]interface{}{"K": "V"}).Info("ii")
 }
 
-func TestResetLevel(t *testing.T) {
-	logrusLogger := logrus.New()
+func TestLogWriter(t *testing.T) {
+	var buf bytes.Buffer
 
-	testcases := map[string]struct {
-		level, want logrus.Level
-	}{
-		"debugLevel": {want: logrus.DebugLevel, level: logrus.TraceLevel},
-		"panicLevel": {want: logrus.ErrorLevel, level: logrus.PanicLevel},
-	}
+	log := NewLogWriter(&buf)
+	log.Debug("d")
+	log.Info("i")
+	log.Error("e")
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			logrusLogger.SetLevel(tc.level)
-
-			resetLevel(logrusLogger)
-
-			if level := logrusLogger.GetLevel(); level != tc.want {
-				t.Fatalf("expected level=%v, got=%v", tc.want, level)
-			}
-		})
-	}
+	fmt.Println("***")
+	fmt.Println(buf.String())
 }
